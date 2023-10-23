@@ -74,6 +74,10 @@ func (a *azureKeyVaultService) GetSecret(vaultSpec *akvs.AzureKeyVault) (string,
 		return "", fmt.Errorf("azurekeyvaultsecret.spec.vault.object.name not set")
 	}
 
+	if a.keyVaultDNSSuffix == "local" {
+		return "dummy", nil
+	}
+
 	client, err := azsecrets.NewClient(a.vaultNameToURL(vaultSpec.Name), a.credentials, nil)
 	if err != nil {
 		return "", err
@@ -92,6 +96,10 @@ func (a *azureKeyVaultService) GetSecret(vaultSpec *akvs.AzureKeyVault) (string,
 func (a *azureKeyVaultService) GetKey(vaultSpec *akvs.AzureKeyVault) (string, error) {
 	if vaultSpec.Object.Name == "" {
 		return "", fmt.Errorf("azurekeyvaultsecret.spec.vault.object.name not set")
+	}
+
+	if a.keyVaultDNSSuffix == "local" {
+		return "dummy", nil
 	}
 
 	client, err := azkeys.NewClient(a.vaultNameToURL(vaultSpec.Name), a.credentials, nil)

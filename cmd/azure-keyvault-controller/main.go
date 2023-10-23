@@ -196,6 +196,12 @@ func main() {
 			klog.ErrorS(err, "failed to create credentials provider from azidentity for azure key vault")
 			os.Exit(1)
 		}
+	case "local":
+		token, keyVaultDNSSuffix, err = getLocalCredentials()
+		if err != nil {
+			klog.ErrorS(err, "failed to create dummy credentials provider from local environment")
+			os.Exit(1)
+		}
 
 	default:
 		klog.ErrorS(nil, "auth type not supported", "type", authType)
@@ -300,4 +306,17 @@ func getCredentialsFromAzidentity() (azure.LegacyTokenCredential, string, error)
 	}
 
 	return token, provider.GetAzureKeyVaultDNSSuffix(), err
+}
+
+func getLocalCredentials() (azure.LegacyTokenCredential, string, error) {
+	provider, err := credentialprovider.FakeEnvironmentCredentialProvider()
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to create azure identity provider, error: %+v", err)
+	}
+	token, err := provider.GetAzureKeyVaultCredentials()
+	if err != nil {
+		return nil, "", nil
+	}
+
+	return token, "local", err
 }
